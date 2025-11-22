@@ -125,6 +125,12 @@ Para una descripción más detallada de la estructura y la lógica interna, cons
 
 El proyecto utiliza `pytest` y `pytest-django` para ejecutar las pruebas automatizadas.
 
+La suite de pruebas está organizada en la carpeta `tests/` de la siguiente forma:
+
+- `tests/unit/`: pruebas unitarias enfocadas en pequeñas partes del sistema (por ejemplo, lógica de cámara y utilidades de validación).
+- `tests/integration/`: pruebas de integración que verifican el funcionamiento de vistas, URLs y flujo de datos entre capas (por ejemplo, la vista principal de registro de asistencia).
+- `tests/functional/`: pruebas funcionales/end-to-end que simulan el comportamiento de un usuario real ejecutando el sistema completo.
+
 Ejecutar todas las pruebas:
 
 ```bash
