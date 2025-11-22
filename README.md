@@ -6,21 +6,21 @@ Proyecto de una aplicación web desarrollada con Django y OpenCV que permite reg
 
 ### Pantalla principal: registro y listado de asistencias
 
-![Pantalla principal](<img width="1352" height="685" alt="image" src="https://github.com/user-attachments/assets/27f81f2d-cb60-4916-8f83-8cdce3e8678f" />)
+<img width="1352" height="685" alt="image" src="https://github.com/user-attachments/assets/27f81f2d-cb60-4916-8f83-8cdce3e8678f" />
 
 Breve descripción: formulario para registrar asistencia y tabla con historial filtrable, paginación y exportación a Excel/PDF.
 
 ### Validación facial y prueba de vida
 
-![Validación facial](<img width="1365" height="688" alt="image" src="https://github.com/user-attachments/assets/3b3c71b6-d847-49c1-a147-b17bffa20965" />)
+<img width="1365" height="688" alt="image" src="https://github.com/user-attachments/assets/3b3c71b6-d847-49c1-a147-b17bffa20965" />
 
 Breve descripción: vista donde se muestra la cámara, detección de rostro y prueba de parpadeo antes de confirmar la asistencia.
 
 ### Historial con filtros y exportación
 
-![Historial y filtros](<img width="1365" height="686" alt="image" src="https://github.com/user-attachments/assets/11a179ae-ddc9-41d5-8a0c-da28c19a934f" />)
+<img width="1365" height="686" alt="image" src="https://github.com/user-attachments/assets/11a179ae-ddc9-41d5-8a0c-da28c19a934f" />
 
-![Excel](<img width="1357" height="698" alt="image" src="https://github.com/user-attachments/assets/b6be20fb-6869-40b3-80d8-56481d52256e" />)
+<img width="1357" height="698" alt="image" src="https://github.com/user-attachments/assets/b6be20fb-6869-40b3-80d8-56481d52256e" />
 
 Breve descripción: filtros por nombre, curso y materia, con botones para exportar registros a Excel y PDF.
 
