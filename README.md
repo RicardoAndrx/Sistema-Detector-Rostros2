@@ -123,7 +123,7 @@ Para una descripción más detallada de la estructura y la lógica interna, cons
 
 ## Ejecución de pruebas
 
-El proyecto utiliza `pytest` y `pytest-django` para ejecutar las pruebas automatizadas.
+El proyecto utiliza `pytest` para ejecutar las pruebas automatizadas.
 
 La suite de pruebas está organizada en la carpeta `tests/` de la siguiente forma:
 
@@ -131,25 +131,33 @@ La suite de pruebas está organizada en la carpeta `tests/` de la siguiente form
 - `tests/integration/`: pruebas de integración que verifican el funcionamiento de vistas, URLs y flujo de datos entre capas (por ejemplo, la vista principal de registro de asistencia).
 - `tests/functional/`: pruebas funcionales/end-to-end que simulan el comportamiento de un usuario real ejecutando el sistema completo.
 
-Ejecutar todas las pruebas:
+Antes de ejecutar las pruebas, activa el entorno virtual:
+
+```bash
+source .venv/Scripts/activate  # Git Bash / WSL en Windows
+# o
+.venv\Scripts\activate        # CMD / PowerShell
+```
+
+Ejecutar **todas las pruebas** desde la raíz del proyecto:
 
 ```bash
 pytest
 ```
 
-Ejecutar solo pruebas unitarias:
+Ejecutar **solo pruebas unitarias**:
 
 ```bash
 pytest tests/unit
 ```
 
-Ejecutar solo pruebas de integración:
+Ejecutar **solo pruebas de integración**:
 
 ```bash
 pytest tests/integration
 ```
 
-Ejecutar solo pruebas funcionales:
+Ejecutar **solo pruebas funcionales**:
 
 ```bash
 pytest tests/functional
@@ -160,11 +168,6 @@ Guardar la salida de las pruebas en un archivo de log (para anexar a informes):
 ```bash
 pytest -v > test_results.log 2>&1
 ```
-
-## Documentación adicional
-
-- **Documentación técnica:** ver `TECHNICAL_DOCS.md`.
-- **Manual de usuario:** ver `USER_MANUAL.md`.
 
 ## Autor y contexto académico
 

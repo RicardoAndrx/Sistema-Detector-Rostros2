@@ -1,7 +1,19 @@
 import os
+import sys
+from pathlib import Path
+
+import django
 import cv2
 import numpy as np
 import pytest
+
+# Asegurar que la raíz del proyecto esté en sys.path
+BASE_DIR = Path(__file__).resolve().parents[1]
+if str(BASE_DIR) not in sys.path:
+    sys.path.append(str(BASE_DIR))
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Practica_experimental3.settings")
+django.setup()
 
 # Importa la clase existente
 from app.camera import LivenessCamera
@@ -77,19 +89,21 @@ def test_blink_flow_sets_validation_success(monkeypatch):
     # Matriz blanca como frame base
     frame = make_white_image(200, 200)
 
-    # Parcheamos detectMultiScale de face y eyes según el paso
+    # Parcheamos CascadeClassifier completo para controlar detectMultiScale
     call_state = {"step": 0}
 
-    def fake_detect_multiscale(self, gray, scaleFactor=1.1, minNeighbors=4):
-        if self is cam.face_cascade:
-            return fake_detect_faces(gray)
-        # Para los ojos cambiamos según el paso
-        if call_state["step"] == 0:
-            return fake_detect_eyes_present(gray)
-        else:
-            return fake_detect_eyes_absent(gray)
+    class FakeCascade:
+        def detectMultiScale(self, gray, scaleFactor=1.1, minNeighbors=4):
+            # Simula detección de rostro
+            if self is cam.face_cascade:
+                return fake_detect_faces(gray)
+            # Para los ojos cambiamos según el paso
+            if call_state["step"] == 0:
+                return fake_detect_eyes_present(gray)
+            else:
+                return fake_detect_eyes_absent(gray)
 
-    monkeypatch.setattr(cv2, "CascadeClassifier", lambda path: cam.face_cascade)
+    monkeypatch.setattr(cv2, "CascadeClassifier", lambda path: FakeCascade())
 
     # Forzamos el video a devolver siempre el mismo frame
     class OneFrameVideo:
@@ -103,9 +117,6 @@ def test_blink_flow_sets_validation_success(monkeypatch):
 
     # Primera llamada: ojos presentes
     call_state["step"] = 0
-    cam.face_cascade.detectMultiScale = fake_detect_multiscale.__get__(
-        cam.face_cascade, type(cam.face_cascade)
-    )
     _ = cam.get_frame()
 
     # Segunda llamada: ojos ausentes => parpadeo
@@ -125,5 +136,5 @@ def test_camera_unavailable(monkeypatch):
     frame_bytes, status, success = cam.get_frame()
     # Cuando cámara falla frame_bytes será None
     assert frame_bytes is None
-    assert "Buscando" in status or "rostro" in status
+    assert "Cámara no disponible" in status
     assert success is False
