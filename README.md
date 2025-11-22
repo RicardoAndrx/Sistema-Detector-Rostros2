@@ -46,7 +46,7 @@ Todas las dependencias se encuentran declaradas en `requirements.txt`.
 Desde la terminal, clona el repositorio y accede al directorio del proyecto:
 
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone https://github.com/RicardoAndrx/Sistema-Detector-Rostros2.git
 cd Sistema-Detector-Rostros2
 ```
 
