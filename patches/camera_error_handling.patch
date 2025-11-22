@@ -1,0 +1,38 @@
+*** Begin Patch
+*** Add File: app/utils/camera_utils.py
++import cv2
++
++def open_camera(index=0, fallback=None):
++    """Intenta abrir la cámara principal. Si falla y se provee fallback (ruta de video),
++    intenta abrir el video. Retorna objeto VideoCapture o None."""
++    cap = cv2.VideoCapture(index)
++    if not cap.isOpened():
++        if fallback:
++            cap = cv2.VideoCapture(fallback)
++            if not cap.isOpened():
++                return None
++        else:
++            return None
++    return cap
++
+*** Update File: app/camera.py
+@@
+-class LivenessCamera:
+-    def __init__(self):
+-        self.video = cv2.VideoCapture(0)
++class LivenessCamera:
++    def __init__(self):
++        try:
++            from app.utils.camera_utils import open_camera
++        except Exception:
++            open_camera = None
++        self.video = open_camera(0) if open_camera else cv2.VideoCapture(0)
++        if self.video is None or not self.video.isOpened():
++            # Estado degradado si no hay cámara disponible
++            self.status = "Cámara no disponible"
++        else:
++            self.status = "Buscando rostro..."
+@@
+-        self.status = "Buscando rostro..."  # Mensaje para el usuario
++        # self.status inicial se define arriba; mantener si cámara no disponible
+*** End Patch

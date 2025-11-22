@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registro de Asistencia</title>
+
+    <!-- Tailwind CSS CDN para un diseño moderno y responsive -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="min-h-screen bg-slate-900 flex items-center justify-center py-10 px-4">
+      <div class="w-full max-w-6xl bg-slate-950/80 border border-slate-800 rounded-2xl shadow-2xl shadow-slate-900/60 backdrop-blur-xl text-slate-100 overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2">
+          <!-- Columna izquierda: formulario -->
+          <div class="p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+            <h1 class="text-2xl lg:text-3xl font-semibold tracking-tight text-white flex items-center gap-2">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-lg font-bold">FR</span>
+              Sistema de Registro Facial
+            </h1>
+            <p class="mt-3 text-sm text-slate-300">Ingresa los datos del estudiante para iniciar la validación de asistencia con reconocimiento facial y prueba de vida.</p>
+
+            <form method="POST" action="{% url 'index' %}" novalidate class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {% csrf_token %}
+              <div class="flex flex-col gap-1">
+                <label for="{{ form.nombre.id_for_label }}" class="text-xs font-medium text-slate-300 uppercase tracking-wide">Nombre</label>
+                <div class="relative">{{ form.nombre }}</div>
+                {% if form.nombre.errors %}
+                  <p class="text-xs text-rose-400 mt-1">{{ form.nombre.errors|first }}</p>
+                {% endif %}
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label for="{{ form.apellido.id_for_label }}" class="text-xs font-medium text-slate-300 uppercase tracking-wide">Apellido</label>
+                <div class="relative">{{ form.apellido }}</div>
+                {% if form.apellido.errors %}
+                  <p class="text-xs text-rose-400 mt-1">{{ form.apellido.errors|first }}</p>
+                {% endif %}
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label for="{{ form.curso.id_for_label }}" class="text-xs font-medium text-slate-300 uppercase tracking-wide">Curso</label>
+                <div class="relative">{{ form.curso }}</div>
+                {% if form.curso.errors %}
+                  <p class="text-xs text-rose-400 mt-1">{{ form.curso.errors|first }}</p>
+                {% endif %}
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label for="{{ form.materia.id_for_label }}" class="text-xs font-medium text-slate-300 uppercase tracking-wide">Materia</label>
+                <div class="relative">{{ form.materia }}</div>
+                {% if form.materia.errors %}
+                  <p class="text-xs text-rose-400 mt-1">{{ form.materia.errors|first }}</p>
+                {% endif %}
+              </div>
+
+              <button type="submit" class="mt-4 md:mt-6 col-span-1 md:col-span-2 inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow hover:bg-emerald-400 transition-colors"><span>Iniciar validación facial</span></button>
+            </form>
+
+            <p class="mt-4 text-xs text-slate-400">La imagen capturada se utilizará únicamente con fines académicos y de demostración de la prueba de vida.</p>
+          </div>
+
+          <!-- Columna derecha: asistencias -->
+          <div class="p-6 lg:p-8 bg-slate-950">
+            <div class="flex flex-col gap-3 mb-4">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <h2 class="text-lg font-semibold text-slate-100">Asistencias registradas</h2>
+                  <p class="text-xs text-slate-400">Historial reciente de registros con evidencia facial.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <a href="{% url 'export_asistencias_excel' %}?q={{ search_q }}&curso={{ curso_q }}&materia={{ materia_q }}" class="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-400/60 px-3 py-1.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/20 transition-colors"><span>Excel</span></a>
+                  <a href="{% url 'export_asistencias_pdf' %}?q={{ search_q }}&curso={{ curso_q }}&materia={{ materia_q }}" class="inline-flex items-center gap-1 rounded-lg bg-slate-900 border border-slate-600 px-3 py-1.5 text-[11px] font-semibold text-slate-200 hover:bg-slate-800 transition-colors"><span>PDF</span></a>
+                </div>
+              </div>
+
+              <!-- Filtros de búsqueda -->
+              <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+                <input type="text" name="q" value="{{ search_q }}" placeholder="Buscar por nombre o apellido" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400" />
+                <input type="text" name="curso" value="{{ curso_q }}" placeholder="Filtrar por curso" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400" />
+                <div class="flex gap-2">
+                  <input type="text" name="materia" value="{{ materia_q }}" placeholder="Filtrar por materia" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400" />
+                  <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-3 py-2 text-[11px] font-semibold text-slate-950 hover:bg-emerald-400 transition-colors">Filtrar</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
+              <table class="min-w-full text-sm text-slate-100">
+                <thead class="bg-slate-900/90 border-b border-slate-800">
+                  <tr>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-400">Foto</th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-400">Estudiante</th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-400">Curso</th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-400">Materia</th>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-slate-400">Fecha y hora</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/80">
+                  {% if page_obj.paginator.count == 0 %}
+                    <!-- Skeleton loading cuando no hay datos -->
+                    {% for _ in 123 %}
+                      <tr class="animate-pulse">
+                        <td class="px-3 py-3">
+                          <div class="h-14 w-14 rounded-lg bg-slate-800"></div>
+                        </td>
+                        <td class="px-3 py-3">
+                          <div class="h-3 w-32 rounded bg-slate-800 mb-2"></div>
+                          <div class="h-2 w-16 rounded bg-slate-800"></div>
+                        </td>
+                        <td class="px-3 py-3">
+                          <div class="h-3 w-20 rounded bg-slate-800"></div>
+                        </td>
+                        <td class="px-3 py-3">
+                          <div class="h-3 w-24 rounded bg-slate-800"></div>
+                        </td>
+                        <td class="px-3 py-3">
+                          <div class="h-3 w-28 rounded bg-slate-800"></div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                    {% for item in asistencias %}
+                      <tr class="hover:bg-slate-900/80 transition-colors">
+                        <td class="px-3 py-2 align-middle">
+                          {% if item.imagen_asistencia %}
+                            <a href="{{ item.imagen_asistencia.url }}" target="_blank" class="inline-block"><img src="{{ item.imagen_asistencia.url }}" alt="Foto de {{ item.nombre }}" class="h-14 w-14 rounded-lg object-cover border border-slate-700/80 shadow-sm" /></a>
+                          {% else %}
+                            <div class="h-14 w-14 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] text-slate-400 border border-slate-700/80">Sin foto</div>
+                          {% endif %}
+                        </td>
+                        <td class="px-3 py-2 align-middle">
+                          <div class="flex flex-col">
+                            <span class="font-medium text-slate-100">{{ item.nombre }} {{ item.apellido }}</span>
+                            <span class="text-[11px] text-slate-400">ID #{{ item.id }}</span>
+                          </div>
+                        </td>
+                        <td class="px-3 py-2 align-middle text-slate-200">{{ item.curso }}</td>
+                        <td class="px-3 py-2 align-middle text-slate-200">{{ item.materia }}</td>
+                        <td class="px-3 py-2 align-middle text-slate-300 text-xs">{{ item.fecha_registro|date:'d M Y, h:i A' }}</td>
+                      </tr>
+                    {% endfor %}
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Paginación -->
+            {% if page_obj.paginator.num_pages > 1 %}
+              <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
+                <div>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</div>
+                <div class="flex gap-2 items-center">
+                  {% if page_obj.has_previous %}
+                    <a href="?page=1&q={{ search_q }}&curso={{ curso_q }}&materia={{ materia_q }}" class="px-2 py-1 rounded-lg border border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-200" title="Primera página">«</a>
+                    <a href="?page={{ page_obj.previous_page_number }}&q={{ search_q }}&curso={{ curso_q }}&materia={{ materia_q }}" class="px-3 py-1 rounded-lg border border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-200">Anterior</a>
+                  {% else %}
+                    <span class="px-2 py-1 rounded-lg border border-slate-800 bg-slate-900/40 text-slate-600 cursor-not-allowed">«</span>
+                    <span class="px-3 py-1 rounded-lg border border-slate-800 bg-slate-900/40 text-slate-600 cursor-not-allowed">Anterior</span>
+                  {% endif %}
+
+                  {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}&q={{ search_q }}&curso={{ curso_q }}&materia={{ materia_q }}" class="px-3 py-1 rounded-lg border border-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300">Siguiente</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}&q={{ search_q }}&curso={{ curso_q }}&materia={{ materia_q }}" class="px-2 py-1 rounded-lg border border-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300" title="Última página">»</a>
+                  {% else %}
+                    <span class="px-3 py-1 rounded-lg border border-slate-800 bg-slate-900/40 text-slate-600 cursor-not-allowed">Siguiente</span>
+                    <span class="px-2 py-1 rounded-lg border border-slate-800 bg-slate-900/40 text-slate-600 cursor-not-allowed">»</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

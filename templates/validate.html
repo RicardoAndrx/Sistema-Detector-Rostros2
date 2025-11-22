@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token }}" />
+    <title>Validación Facial</title>
+    <!-- Tailwind CSS para mantener el estilo moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-10">
+    <!-- Toast de notificaciones -->
+    <div id="toast" class="fixed top-4 right-4 z-50 hidden">
+      <div id="toast-inner" class="flex items-center gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg bg-slate-900/95 border-slate-700 text-slate-100">
+        <span id="toast-icon" class="text-lg">✔</span>
+        <span id="toast-message">Mensaje</span>
+      </div>
+    </div>
+
+    <!-- Overlay de éxito -->
+    <div id="success-overlay" class="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/70 backdrop-blur-md hidden">
+      <div class="flex flex-col items-center gap-3">
+        <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-400/60 shadow-lg">
+          <div class="absolute inset-0 rounded-full border-4 border-emerald-400/40 animate-ping"></div>
+          <span class="relative text-4xl text-emerald-300">✔</span>
+        </div>
+        <p class="text-sm font-semibold text-emerald-200">Asistencia validada y registrada correctamente</p>
+      </div>
+    </div>
+    <div class="w-full max-w-5xl bg-slate-950/90 border border-slate-800 rounded-2xl shadow-2xl shadow-slate-900/70 backdrop-blur-xl text-slate-100 p-6 lg:p-10">
+      <div class="flex flex-col lg:flex-row gap-8 items-start">
+        <div class="flex-1 space-y-3">
+          <div class="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/40 px-3 py-1 text-[11px] font-medium text-emerald-300 mb-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Cámara activa para validación
+          </div>
+          <h1 class="text-2xl lg:text-3xl font-semibold tracking-tight text-white">Validación de asistencia</h1>
+          <p class="text-sm text-slate-300 max-w-md">Mira directamente a la cámara y sigue las instrucciones en pantalla. El sistema detectará tu rostro y un parpadeo para completar la prueba de vida.</p>
+
+          <div id="status-text" class="mt-4 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-amber-300 border border-amber-400/40">
+            <span class="h-2 w-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span>Iniciando cámara...</span>
+          </div>
+
+          <ul class="mt-4 space-y-1 text-xs text-slate-400">
+            <li>• Asegúrate de estar bien iluminado y centrado en la imagen.</li>
+            <li>• Mantén el rostro visible y quítate gafas muy oscuras o elementos que tapen los ojos.</li>
+            <li>• Cuando se detecte tu rostro, parpadea suavemente para completar la validación.</li>
+          </ul>
+        </div>
+
+        <div class="flex-1 flex flex-col items-center gap-4">
+          <div class="relative rounded-2xl border border-slate-800 bg-slate-900/70 shadow-xl overflow-hidden">
+            <div class="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-4 py-2 bg-gradient-to-b from-slate-950/80 to-transparent text-[11px] text-slate-300">
+              <span class="inline-flex items-center gap-1">
+                <span class="h-2 w-2 rounded-full bg-red-500"></span>
+                REC
+              </span>
+              <span>Validación en tiempo real</span>
+            </div>
+            <img src="{% url 'video_feed' %}" width="640" height="480" id="video-feed" class="block w-full h-auto object-cover" />
+          </div>
+
+          <button type="button" onclick="window.location.href='{% url 'index' %}'" class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-900/60 px-4 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800/80 transition-colors">Cancelar y volver al inicio</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Obtenemos el token CSRF de la etiqueta meta
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      const statusText = document.getElementById('status-text')
+      const videoFeed = document.getElementById('video-feed')
+      const toast = document.getElementById('toast')
+      const toastInner = document.getElementById('toast-inner')
+      const toastIcon = document.getElementById('toast-icon')
+      const toastMessage = document.getElementById('toast-message')
+      const successOverlay = document.getElementById('success-overlay')
+      let statusInterval
+      
+      function showToast(message, type = 'info') {
+        toastMessage.textContent = message
+      
+        // Reset clases base
+        toastInner.className = 'flex items-center gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg'
+      
+        if (type === 'success') {
+          toastInner.classList.add('bg-emerald-900/90', 'border-emerald-500/70', 'text-emerald-50')
+          toastIcon.textContent = '✔'
+        } else if (type === 'error') {
+          toastInner.classList.add('bg-rose-900/90', 'border-rose-500/70', 'text-rose-50')
+          toastIcon.textContent = '⚠'
+        } else {
+          toastInner.classList.add('bg-slate-900/95', 'border-slate-700', 'text-slate-100')
+          toastIcon.textContent = 'ℹ'
+        }
+      
+        toast.classList.remove('hidden')
+      
+        setTimeout(() => {
+          toast.classList.add('hidden')
+        }, 3000)
+      }
+      
+      // Función para sondear el estado de la validación
+      async function checkStatus() {
+        try {
+          const response = await fetch("{% url 'validation_status' %}")
+          const data = await response.json()
+      
+          // Actualizar el texto de estado
+          statusText.querySelector('span:last-child').textContent = data.status
+      
+          // Si hay un error de cámara, detenemos el proceso y mostramos mensaje
+          if (data.status && data.status.toLowerCase().includes('cámara no disponible')) {
+            statusText.classList.remove('text-amber-300', 'text-emerald-300')
+            statusText.classList.add('text-rose-300')
+            clearInterval(statusInterval)
+            videoFeed.src = ''
+            showToast('Cámara no disponible. Verifique conexión y permisos.', 'error')
+            return
+          }
+      
+          if (data.success) {
+            // --- ¡ÉXITO! ---
+            statusText.querySelector('span:last-child').textContent = '¡Validado! Guardando...'
+            statusText.classList.remove('text-amber-300')
+            statusText.classList.add('text-emerald-300')
+      
+            // Detener el sondeo
+            clearInterval(statusInterval)
+      
+            // Detener el stream de video (opcional, pero buena práctica)
+            videoFeed.src = ''
+      
+            // Mostrar overlay de éxito y llamar a la vista para procesar y guardar
+            successOverlay.classList.remove('hidden')
+            await saveValidation()
+          } else {
+            // Cambiar el color del texto si detecta un rostro
+            if (data.status.includes('Parpadee')) {
+              statusText.classList.remove('text-emerald-300')
+              statusText.classList.add('text-amber-300')
+            } else {
+              statusText.classList.remove('text-amber-300')
+              statusText.classList.add('text-rose-300')
+            }
+          }
+        } catch (error) {
+          console.error('Error al verificar estado:', error)
+          statusText.querySelector('span:last-child').textContent = 'Error de conexión. Recargue.'
+          clearInterval(statusInterval)
+          showToast('Error de conexión al verificar estado.', 'error')
+        }
+      }
+      
+      // Función para guardar la validación
+      async function saveValidation() {
+        try {
+          const response = await fetch("{% url 'process_validation' %}", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken // Enviar el token CSRF
+            }
+            // No es necesario enviar body, los datos están en la sesión
+          })
+      
+          const data = await response.json()
+      
+          if (data.status === 'ok') {
+            statusText.querySelector('span:last-child').textContent = '¡Asistencia registrada!'
+            showToast('Asistencia registrada correctamente.', 'success')
+            // Redirigir de vuelta al inicio después de 2 segundos
+            setTimeout(() => {
+              window.location.href = "{% url 'index' %}"
+            }, 2000)
+          } else {
+            statusText.querySelector('span:last-child').textContent = `Error: ${data.message}`
+            statusText.classList.remove('text-amber-300')
+            statusText.classList.add('text-rose-300')
+            showToast(data.message || 'Error al registrar asistencia.', 'error')
+            successOverlay.classList.add('hidden')
+          }
+        } catch (error) {
+          console.error('Error al guardar:', error)
+          statusText.querySelector('span:last-child').textContent = 'Error de guardado.'
+          showToast('Error de guardado en el servidor.', 'error')
+          successOverlay.classList.add('hidden')
+        }
+      }
+      
+      // Iniciar el sondeo de estado 3 veces por segundo
+      statusInterval = setInterval(checkStatus, 333) // 333ms
+    </script>
+  </body>
+</html>
