@@ -46,9 +46,9 @@ Si los datos son válidos, el sistema lo redirigirá automáticamente a la panta
 
 [INSERTAR CAPTURA DE PANTALLA DEL LOGIN / VALIDACIÓN CON CÁMARA AQUÍ]
 
-4. Pida al estudiante que **parpadee de forma natural** frente a la cámara. El sistema detectará el parpadeo como señal de que se trata de una persona real y no de una fotografía.
+<!-- 4. Pida al estudiante que **parpadee de forma natural** frente a la cámara. El sistema detectará el parpadeo como señal de que se trata de una persona real y no de una fotografía.
 
-5. Una vez completada la validación, el sistema guardará automáticamente la asistencia y una captura de la imagen en la base de datos.
+5. Una vez completada la validación, el sistema guardará automáticamente la asistencia y una captura de la imagen en la base de datos. -->
 
 ### 4.3 Confirmación y visualización del registro
 
